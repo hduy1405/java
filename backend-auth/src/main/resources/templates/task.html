@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Project Tasks | Project Management</title>
+    <meta charset="UTF-8"/>
+    <style>
+        body {
+            background: #f7faff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+        }
+
+        .header {
+            width: 100vw;
+            height: 70px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 10px #0001;
+            padding: 0 36px 0 30px;
+            position: fixed;
+            left: 0; top: 0; right: 0;
+            z-index: 2;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-header {
+            height: 38px;
+            width: 38px;
+            object-fit: contain;
+        }
+
+        .logo-text {
+            font-size: 26px;
+            font-weight: bold;
+            color: #175fa2;
+            letter-spacing: 0.5px;
+        }
+
+        .search-box {
+            margin-left: 60px;
+        }
+
+        .search-box input {
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            min-width: 260px;
+            font-size: 15px;
+        }
+
+        .user-info {
+            margin-left: auto;
+            display: flex; align-items: center; gap: 14px;
+        }
+
+        .user-info img {
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+        }
+
+        .sidebar {
+            width: 220px;
+            background: #fff;
+            min-height: calc(100vh - 70px);
+            position: fixed;
+            left: 0; top: 70px; bottom: 0;
+            box-shadow: 2px 0 16px #0001;
+            padding-top: 32px;
+            z-index: 1;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0 0 0 18px;
+        }
+
+        .sidebar ul li {
+            margin-bottom: 18px;
+        }
+
+        .sidebar ul li a {
+            text-decoration: none;
+            color: #333;
+            font-size: 16px;
+            padding: 8px 18px;
+            display: block;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .sidebar ul li a.active, .sidebar ul li a:hover {
+            background: #e3edfa;
+            color: #1565c0;
+        }
+
+        .main {
+            margin-left: 220px;
+            margin-top: 70px;
+            padding: 36px 38px;
+        }
+
+        .project-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .project-info h2 {
+            font-size: 26px;
+            font-weight: bold;
+            color: #18376d;
+        }
+
+        .project-info .assign-task-btn {
+            padding: 12px 24px;
+            background: #008cba;
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        .tasks-list {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+        }
+
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e1e1e1;
+            padding: 12px 0;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-item .task-details {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .task-item .task-time {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .task-item .task-time-spent {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #4caf50;
+        }
+
+        .task-item .task-time-spent span {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .task-item .status-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .task-item .status-buttons button {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .task-item .status-buttons .complete-btn {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .task-item .status-buttons .cancel-btn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .task-item .status-buttons .edit-btn {
+            background-color: #2196f3;
+            color: white;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .pagination button {
+            padding: 8px 16px;
+            background: #e1f5fe;
+            border: 1px solid #81d4fa;
+            color: #0277b2;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        .pagination button.active {
+            background: #0288d1;
+            color: white;
+        }
+
+        .pagination button:hover {
+            background: #0288d1;
+            color: white;
+        }
+
+        @media (max-width: 1000px) {
+            .main {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+    <div class="header-left">
+        <img src="/static/logo.png" alt="Logo" class="logo-header"/>
+        <span class="logo-text">AProjectO</span>
+    </div>
+    <div class="search-box">
+        <input type="text" placeholder="Search for anything..."/>
+    </div>
+    <div class="user-info">
+        <span style="font-weight: 500;">Anima Agrawal</span>
+        <span style="font-size: 13px; color: #777;">U.P, India</span>
+        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="avatar"/>
+    </div>
+</div>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <ul>
+        <li><a href="#" class="active">Project</a></li>
+        <li><a href="#">Tasks</a></li>
+        <li><a href="#">Work Logs</a></li>
+        <li><a href="#">Performance</a></li>
+        <li><a href="#">Settings</a></li>
+    </ul>
+</div>
+
+<!-- Main content -->
+<div class="main">
+    <!-- Project Info Section -->
+    <div class="project-info">
+        <h2>Projects / Addodle</h2>
+        <button class="assign-task-btn">Assign Task</button>
+    </div>
+
+    <!-- Task List -->
+    <div class="tasks-list">
+        <!-- Task Item -->
+        <div class="task-item">
+            <div class="task-details">
+                <div>
+                    <strong>Make an Automatic Payment System that enable the design</strong><br>
+                    <span class="task-time">Opened 10 days ago by Yash Ghori</span>
+                </div>
+            </div>
+            <div class="task-time-spent">
+                <span>00:30:00</span>
+            </div>
+            <div class="status-buttons">
+                <button class="complete-btn">Complete</button>
+                <button class="cancel-btn">Cancel</button>
+                <button class="edit-btn">Edit Project</button>
+            </div>
+        </div>
+
+        <!-- Task Item -->
+        <div class="task-item">
+            <div class="task-details">
+                <div>
+                    <strong>Make an Automatic Payment System that enable the design</strong><br>
+                    <span class="task-time">Opened 10 days ago by Yash Ghori</span>
+                </div>
+            </div>
+            <div class="task-time-spent">
+                <span>00:30:00</span>
+            </div>
+            <div class="status-buttons">
+                <button class="complete-btn">Complete</button>
+                <button class="cancel-btn">Cancel</button>
+                <button class="edit-btn">Edit Project</button>
+            </div>
+        </div>
+
+        <!-- Task Item -->
+        <div class="task-item">
+            <div class="task-details">
+                <div>
+                    <strong>Make an Automatic Payment System that enable the design</strong><br>
+                    <span class="task-time">Opened 10 days ago by Yash Ghori</span>
+                </div>
+            </div>
+            <div class="task-time-spent">
+                <span>00:30:00</span>
+            </div>
+            <div class="status-buttons">
+                <button class="complete-btn">Complete</button>
+                <button class="cancel-btn">Cancel</button>
+                <button class="edit-btn">Edit Project</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        <button>Previous</button>
+        <button class="active">1</button>
+        <button>2</button>
+        <button>3</button>
+        <button>Next</button>
+    </div>
+</div>
+
+</body>
+</html>
