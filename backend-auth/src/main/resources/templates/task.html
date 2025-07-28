@@ -129,11 +129,36 @@
             border-radius: 6px;
         }
 
+        .project-description-box {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 40px;
+        }
+
+        .project-description-box p {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .project-timeline {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .project-timeline strong {
+            color: #175fa2;
+        }
+
         .tasks-list {
             background: #fff;
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
             padding: 20px;
+            margin-top: 30px;
         }
 
         .task-item {
@@ -159,6 +184,15 @@
             color: #888;
         }
 
+        .task-item .task-description {
+            font-size: 14px;
+            color: #555;
+            margin-top: 12px;
+            line-height: 1.5;
+            display: block;
+            margin-bottom: 12px;
+        }
+
         .task-item .task-time-spent {
             display: flex;
             align-items: center;
@@ -172,32 +206,50 @@
             font-weight: bold;
         }
 
+        /* ===== HIỆU ỨNG NÚT ĐỘNG ===== */
         .task-item .status-buttons {
             display: flex;
             gap: 8px;
         }
-
         .task-item .status-buttons button {
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 14px;
+            padding: 10px 22px;
+            border-radius: 6px;
+            font-size: 17px;
+            font-weight: 500;
             cursor: pointer;
+            border: 2px solid #2222;
+            transition:
+                    background 0.22s,
+                    color 0.22s,
+                    box-shadow 0.22s,
+                    transform 0.14s;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            outline: none;
         }
-
         .task-item .status-buttons .complete-btn {
             background-color: #4caf50;
             color: white;
         }
-
         .task-item .status-buttons .cancel-btn {
             background-color: #f44336;
             color: white;
         }
-
         .task-item .status-buttons .edit-btn {
             background-color: #2196f3;
             color: white;
         }
+        .task-item .status-buttons button:hover {
+            transform: scale(1.08);
+            box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+            filter: brightness(1.09);
+            opacity: 0.96;
+        }
+        .task-item .status-buttons button:active {
+            transform: scale(0.96);
+            filter: brightness(0.93);
+            box-shadow: 0 1px 5px rgba(0,0,0,0.12);
+        }
+        /* ===== HẾT HIỆU ỨNG NÚT ĐỘNG ===== */
 
         .pagination {
             display: flex;
@@ -270,61 +322,17 @@
         <button class="assign-task-btn">Assign Task</button>
     </div>
 
+    <!-- New Section Below -->
+    <div class="project-description-box">
+        <p>This section can contain additional information, details, or description about the project. You can customize this as needed.</p>
+        <div class="project-timeline">
+            <strong>Start Date: </strong><span>01 January 2023</span><br>
+            <strong>End Date: </strong><span>31 December 2023</span>
+        </div>
+    </div>
+
     <!-- Task List -->
     <div class="tasks-list">
-        <!-- Task Item -->
-        <div class="task-item">
-            <div class="task-details">
-                <div>
-                    <strong>Make an Automatic Payment System that enable the design</strong><br>
-                    <span class="task-time">Opened 10 days ago by Yash Ghori</span>
-                </div>
-            </div>
-            <div class="task-time-spent">
-                <span>00:30:00</span>
-            </div>
-            <div class="status-buttons">
-                <button class="complete-btn">Complete</button>
-                <button class="cancel-btn">Cancel</button>
-                <button class="edit-btn">Edit Project</button>
-            </div>
-        </div>
-
-        <!-- Task Item -->
-        <div class="task-item">
-            <div class="task-details">
-                <div>
-                    <strong>Make an Automatic Payment System that enable the design</strong><br>
-                    <span class="task-time">Opened 10 days ago by Yash Ghori</span>
-                </div>
-            </div>
-            <div class="task-time-spent">
-                <span>00:30:00</span>
-            </div>
-            <div class="status-buttons">
-                <button class="complete-btn">Complete</button>
-                <button class="cancel-btn">Cancel</button>
-                <button class="edit-btn">Edit Project</button>
-            </div>
-        </div>
-
-        <!-- Task Item -->
-        <div class="task-item">
-            <div class="task-details">
-                <div>
-                    <strong>Make an Automatic Payment System that enable the design</strong><br>
-                    <span class="task-time">Opened 10 days ago by Yash Ghori</span>
-                </div>
-            </div>
-            <div class="task-time-spent">
-                <span>00:30:00</span>
-            </div>
-            <div class="status-buttons">
-                <button class="complete-btn">Complete</button>
-                <button class="cancel-btn">Cancel</button>
-                <button class="edit-btn">Edit Project</button>
-            </div>
-        </div>
     </div>
 
     <!-- Pagination -->
@@ -336,6 +344,148 @@
         <button>Next</button>
     </div>
 </div>
+<script>
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    const apiBase = 'http://localhost:8181/api';
+    const projectId = getQueryParam('projectId');
+    const token = localStorage.getItem('token');
+
+    // Hàm format ngày dd-mm-yyyy
+    function formatDateToDDMMYYYY(dateString) {
+        if (!dateString) return "";
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return dateString; // fallback nếu date lỗi
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+    }
+
+    // 1. Fetch project info (API: /api/projects/{id})
+    async function fetchProjectInfo() {
+        if (!projectId) return;
+        const res = await fetch(`${apiBase}/projects/${projectId}`, {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (res.ok) {
+            const project = await res.json();
+            console.log('Project info:', project);
+
+            document.querySelector('.project-info h2').innerText = `Projects / ${project.name}`;
+            document.querySelector('.project-description-box p').innerText = project.description || '';
+            document.querySelector('.project-timeline').innerHTML = `
+                <strong>Start Date: </strong><span>${formatDateToDDMMYYYY(project.startDate) || ''}</span><br>
+                <strong>End Date: </strong><span>${formatDateToDDMMYYYY(project.endDate) || ''}</span>
+            `;
+        }
+    }
+
+    // 2. Fetch tasks (chỉ hiển thị task của project hiện tại)
+    async function fetchTasks() {
+        console.log('Current projectId:', projectId);
+        const url = `${apiBase}/tasks`;
+        const res = await fetch(url, {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const tasksListDiv = document.querySelector('.tasks-list');
+        if (res.ok) {
+            let tasks = await res.json();
+            console.log('Raw tasks from API:', tasks);
+
+            // Lọc lại tasks đúng project hiện tại (nếu backend chưa filter)
+            tasks = tasks.filter(task =>
+                task.project && String(task.project.id) === String(projectId)
+            );
+            console.log('Tasks after filter by projectId:', tasks);
+
+            if (!tasks.length) {
+                tasksListDiv.innerHTML = '<p>No tasks found.</p>';
+                return;
+            }
+            tasks.forEach(task => {
+                // Log chi tiết từng task chuẩn debug
+                console.log('Task render:', {
+                    id: task.id,
+                    name: task.name,
+                    startDate: task.startDate,
+                    start_date: task.start_date,
+                    endDate: task.endDate,
+                    end_date: task.end_date,
+                    status: task.status
+                });
+            });
+            tasksListDiv.innerHTML = tasks.map(task => {
+                // Bao cả camelCase lẫn snake_case
+                const start = task.startDate || task.start_date;
+                const end = task.endDate || task.end_date;
+                return `
+                <div class="task-item">
+                    <div class="task-details">
+                        <div>
+                            <strong>${task.name || 'No title'}</strong><br>
+                            <span class="task-time">
+                                ${start ? 'Start: ' + new Date(start).toLocaleDateString() : ''}
+                                ${end ? ' - End: ' + new Date(end).toLocaleDateString() : ''}
+                            </span>
+                            <div class="task-description">
+                                ${task.description || ''}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-time-spent">
+                        <span>${task.status || ''}</span>
+                    </div>
+                    <div class="status-buttons">
+                        <button class="complete-btn" onclick="completeTask('${task.id}')">Complete</button>
+                        <button class="cancel-btn" onclick="cancelTask('${task.id}')">Cancel</button>
+                        <button class="edit-btn" onclick="editTask('${task.id}')">Edit Project</button>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        } else {
+            tasksListDiv.innerHTML = '<p>Cannot load tasks.</p>';
+            console.error('Lỗi fetch tasks:', res.status, res.statusText);
+        }
+    }
+
+    // 3. Hoàn thành / huỷ task
+    async function completeTask(id) {
+        await fetch(`${apiBase}/tasks/${id}/complete`, {
+            method: 'PUT',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        fetchTasks();
+    }
+    async function cancelTask(id) {
+        await fetch(`${apiBase}/tasks/${id}/cancel`, {
+            method: 'PUT',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        fetchTasks();
+    }
+    function editTask(id) {
+        location.href = `edit_task.html?id=${id}&projectId=${projectId}`;
+    }
+
+    // 4. Xử lý nút assign task
+    document.querySelector('.assign-task-btn').onclick = function() {
+        location.href = `create_task.html?projectId=${projectId}`;
+    };
+
+    // 5. Khởi động
+    fetchProjectInfo();
+    fetchTasks();
+    setInterval(fetchTasks, 10000); // tự refresh 10s
+
+    console.log(tasks);
+
+</script>
+
 
 </body>
 </html>

@@ -291,8 +291,10 @@
                     <span class="section-badge">${project.filesCount} files</span>
                 `;
                 projectCard.addEventListener('click', function() {
-                    window.location.href = `/projects/${project.id}`;  // Chuyển đến trang chi tiết của project
+                    window.location.href = `task.html?projectId=${project.id}`;
+                    // Chuyển sang task.html và truyền ID project
                 });
+
                 projectsGrid.appendChild(projectCard);
             });
         } else {

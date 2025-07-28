@@ -21,7 +21,9 @@ public class ProjectServiceImpl implements ProjectService {
         resp.setName(project.getName());
         resp.setDescription(project.getDescription());
         resp.setCreatedAt(project.getCreatedAt());
-        resp.setStatus(project.getStatus());  // Thêm status vào response
+        resp.setStatus(project.getStatus());
+        resp.setStartDate(project.getStartDate());
+        resp.setEndDate(project.getEndDate());
         return resp;
     }
 
@@ -30,7 +32,9 @@ public class ProjectServiceImpl implements ProjectService {
         Project project = new Project();
         project.setName(request.getName());
         project.setDescription(request.getDescription());
-        project.setStatus(request.getStatus());  // Thêm status khi tạo project mới
+        project.setStatus(request.getStatus());
+        project.setStartDate(request.getStartDate());
+        project.setEndDate(request.getEndDate());
         Project saved = projectRepository.save(project);
         return mapToResponse(saved);
     }
@@ -56,8 +60,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         project.setName(request.getName());
         project.setDescription(request.getDescription());
-        project.setStatus(request.getStatus());  // Cập nhật status từ request
-
+        project.setStatus(request.getStatus());
         Project saved = projectRepository.save(project);
         return mapToResponse(saved);
     }

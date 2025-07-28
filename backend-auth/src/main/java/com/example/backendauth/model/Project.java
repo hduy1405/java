@@ -2,7 +2,7 @@ package com.example.backendauth.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-
+import com.fasterxml.jackson.annotation.JsonFormat;
 @Entity
 public class Project {
     @Id
@@ -14,9 +14,18 @@ public class Project {
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    private String status;  // Thêm thuộc tính status
+    private String status;
 
-    // Các phương thức getter và setter cho các thuộc tính
+    @Column(name = "start_date")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime startDate;
+
+    @Column(name = "end_date")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime endDate;
+
+
+    // Getters & Setters
     public Long getId() {
         return id;
     }
@@ -33,12 +42,20 @@ public class Project {
         return createdAt;
     }
 
-    public String getStatus() {  // Thêm phương thức getter cho status
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {  // Thêm phương thức setter cho status
-        this.status = status;
+    public LocalDateTime getStartDate() {
+        return startDate;
+    }
+
+    public LocalDateTime getEndDate() {
+        return endDate;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public void setName(String name) {
@@ -53,10 +70,15 @@ public class Project {
         this.createdAt = createdAt;
     }
 
-    // Nếu muốn liên kết User tạo project:
-    // @ManyToOne
-    // private User owner;
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-    // Getters & Setters cho các thuộc tính khác
-    // ...
+    public void setStartDate(LocalDateTime startDate) {
+        this.startDate = startDate;
+    }
+
+    public void setEndDate(LocalDateTime endDate) {
+        this.endDate = endDate;
+    }
 }
