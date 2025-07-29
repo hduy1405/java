@@ -4,6 +4,8 @@ import com.example.backendauth.model.Task;
 import com.example.backendauth.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import com.example.backendauth.dto.TaskRequest;
+
 
 import java.util.List;
 
@@ -15,9 +17,15 @@ public class TaskController {
     private TaskService taskService;
 
     @PostMapping
-    public Task createTask(@RequestBody Task task) {
-        return taskService.createTask(task); // Tạo task mới
+    public Task createTask(@RequestBody TaskRequest request) {
+        return taskService.createTask(request);
     }
+
+    @PutMapping("/{id}/complete")
+    public Task completeTask(@PathVariable Long id) {
+        return taskService.completeTask(id);
+    }
+
 
     @GetMapping
     public List<Task> getAllTasks() {

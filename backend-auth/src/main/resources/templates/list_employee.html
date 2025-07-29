@@ -222,7 +222,7 @@
 <div class="main">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
         <div class="dashboard-title">Employees</div>
-        <a href="adduser.html" class="btn-create-employee" id="createEmployeeBtn">
+        <a href="adduser.html" class="btn-create-employee" id="createEmployeeBtn" style="display:none;">
             + Create Employee
         </a>
     </div>
@@ -235,60 +235,74 @@
 <script>
     window.onload = async function() {
         const token = localStorage.getItem('token');
+        const btnCreate = document.getElementById("createEmployeeBtn");
 
-        // Kiểm tra nếu không có token
+        // Ẩn nút mặc định (tránh nhấp nháy)
+        btnCreate.style.display = "none";
+
         if (!token) {
-            console.error('Token không tồn tại');
+            alert('Bạn chưa đăng nhập. Đang chuyển hướng...');
+            window.location.href = 'login.html';
             return;
         }
 
-        // Giải mã token và lấy vai trò người dùng
-        const role = getRoleFromToken(token);  // Giải mã token để lấy vai trò người dùng
-        console.log("Role: ", role); // Log để kiểm tra vai trò đã được giải mã đúng chưa
-
-        // Kiểm tra vai trò ADMIN
-        if (role !== "ADMIN") {
-            console.log("Hiding Create Employee button for non-ADMIN users");
-            document.getElementById("createEmployeeBtn").style.display = "none";  // Ẩn nút Create Employee nếu người dùng không phải ADMIN
-        }
-
-        // Function giải mã JWT và lấy vai trò từ token
-        function getRoleFromToken(token) {
-            try {
-                const decodedToken = decodeJWT(token); // Giải mã JWT
-                return decodedToken.role;  // Trả về vai trò người dùng từ payload
-            } catch (error) {
-                console.error('Lỗi khi giải mã token:', error);
-                return null;
-            }
-        }
-
-        // Hàm giải mã JWT
+        // Giải mã JWT lấy role
         function decodeJWT(token) {
-            const payload = token.split('.')[1];  // Lấy phần payload từ JWT (phần giữa)
-            const decodedPayload = atob(payload);  // Giải mã base64
-            return JSON.parse(decodedPayload);  // Chuyển payload thành đối tượng JSON
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const payload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(payload);
         }
 
-        // Gọi API lấy dữ liệu nhân viên
+        function getRoleFromToken(token) {
+            const decoded = decodeJWT(token);
+            if (decoded.role) return decoded.role;
+            if (decoded.roles) return Array.isArray(decoded.roles) ? decoded.roles[0] : decoded.roles;
+            if (decoded.authority) return decoded.authority;
+            if (decoded.authorities) return Array.isArray(decoded.authorities) ? decoded.authorities[0] : decoded.authorities;
+            return null;
+        }
+
+        let role = null;
+        try {
+            role = getRoleFromToken(token);
+            console.log('ROLE:', role);
+        } catch (error) {
+            alert('Token không hợp lệ, vui lòng đăng nhập lại!');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        let checkRole = Array.isArray(role) ? role[0] : role;
+        if (checkRole && checkRole.toUpperCase().includes("ADMIN")) {
+            btnCreate.style.display = "inline-block";
+        } else {
+            btnCreate.style.display = "none";
+        }
+
+        // Fetch employee list
         const response = await fetch('http://localhost:8181/api/admin/list-employee', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                ...(token && { 'Authorization': 'Bearer ' + token })  // Truyền token trong header
+                'Authorization': 'Bearer ' + token
             }
         });
 
         const data = await response.json();
         const grid = document.getElementById("employeeGrid");
-        grid.innerHTML = "";  // Xóa danh sách cũ
+        grid.innerHTML = "";
 
-        // Sử dụng ảnh ngẫu nhiên nếu không có avatar (hoặc sửa lại nếu backend trả về avatar)
         function getAvatar(idx, gender = 'men') {
             return `https://randomuser.me/api/portraits/${gender}/${30 + (idx % 50)}.jpg`;
         }
 
-        // Hiển thị danh sách nhân viên
+        if (data.length === 0) {
+            grid.innerHTML = "<div style='grid-column: 1/-1; text-align:center;'>Chưa có nhân viên nào.</div>";
+        }
+
         data.forEach((emp, idx) => {
             const card = document.createElement('div');
             card.className = 'employee-card';
@@ -306,14 +320,12 @@
             `;
             card.style.cursor = "pointer";
             card.addEventListener('click', function() {
-                window.location.href = 'employee_profile.html?id=' + emp.id;  // Chuyển tới trang chi tiết nhân viên
+                window.location.href = 'employee_profile.html?id=' + encodeURIComponent(emp.id);
             });
             grid.appendChild(card);
         });
     };
 </script>
-
-
 
 </body>
 </html>

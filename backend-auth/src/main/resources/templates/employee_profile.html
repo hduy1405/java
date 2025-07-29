@@ -309,15 +309,6 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="nationality">Nationality</label>
-                    <select id="nationality" name="nationality">
-                        <option value="India" selected>India</option>
-                        <option value="USA">USA</option>
-                        <option value="UK">UK</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
                     <label for="designation">Designation</label>
                     <select id="designation" name="designation">
                         <option value="UI Intern" selected>UI Intern</option>
@@ -400,7 +391,6 @@
             document.querySelector('#last-name').value = employee.lastName;
             document.querySelector('#email').value = employee.email;
             document.querySelector('#phone').value = employee.phoneNumber;
-            document.querySelector('#nationality').value = employee.nationality || 'India';
             document.querySelector('#designation').value = employee.designation || 'UI Intern';
         } else {
             alert('Invalid employee ID');
@@ -416,7 +406,7 @@
             const lastName = document.querySelector('#last-name').value;
             const email = document.querySelector('#email').value;
             const phoneNumber = document.querySelector('#phone').value;
-            const nationality = document.querySelector('#nationality').value;
+
             const designation = document.querySelector('#designation').value;
 
             const employeeData = {
@@ -424,7 +414,6 @@
                 lastName,
                 email,
                 phoneNumber,
-                nationality,
                 designation
             };
 

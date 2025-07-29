@@ -238,5 +238,70 @@
         </div>
     </form>
 </div>
+<script>
+    // Hàm lấy projectId từ URL (?projectId=xxx)
+    function getProjectId() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get("projectId"); // Đã fix lại cho đúng key
+    }
+
+    document.querySelector('.form-task').onsubmit = async function(e) {
+        e.preventDefault();
+
+        // Lấy dữ liệu từ form
+        const name = document.getElementById('taskTitle').value;
+        const type = document.getElementById('taskType').value;
+        const description = document.getElementById('taskDescription').value;
+        const startDate = document.getElementById('taskStartDate').value;
+        const endDate = document.getElementById('taskEndDate').value;
+        const assignTo = document.getElementById('assignTo').value;
+        const status = "Pending";
+        const projectId = getProjectId(); // Lấy projectId
+
+        // Kiểm tra nếu thiếu projectId thì báo lỗi
+        if (!projectId) {
+            alert('Không tìm thấy projectId!');
+            return;
+        }
+
+        // Chuẩn bị dữ liệu gửi lên backend
+        const payload = {
+            name,
+            type,
+            description,
+            startDate,
+            endDate,
+            assignee: assignTo,
+            status,
+            projectId   // Thêm projectId vào payload
+        };
+
+        const token = localStorage.getItem('token');
+        const apiUrl = "http://localhost:8181/api/tasks";
+
+        try {
+            const res = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                alert('Tạo task thành công!');
+                // Quay lại trang task list của project này
+                window.location.href = 'task.html?projectId=' + projectId;
+            } else {
+                const err = await res.text();
+                alert('Lỗi tạo task: ' + err);
+            }
+        } catch (e) {
+            alert('Lỗi kết nối server!');
+        }
+    };
+</script>
+
 </body>
 </html>

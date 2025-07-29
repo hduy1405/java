@@ -283,6 +283,48 @@
                 margin-left: 0;
             }
         }
+
+        /* Popup style đã được tích hợp */
+        #popup-overlay {
+            position: fixed; z-index: 9999; left: 0; top: 0; right: 0; bottom: 0;
+            background: rgba(60,70,90,0.10);
+            display: flex; align-items: center; justify-content: center;
+            animation: popupBgFadeIn .2s;
+        }
+        #popup-box {
+            min-width: 320px;
+            background: #fff;
+            border-radius: 18px;
+            padding: 30px 28px;
+            box-shadow: 0 8px 40px #245db222;
+            text-align: center;
+            font-size: 18px;
+            color: #204675;
+            animation: popupBounce .33s cubic-bezier(.7,-0.5,.32,1.45);
+        }
+        @keyframes popupBounce {
+            0% {transform: scale(0.78);}
+            60%{transform: scale(1.07);}
+            90%{transform: scale(0.98);}
+            100%{transform: scale(1);}
+        }
+        @keyframes popupBgFadeIn {
+            0%{background:rgba(60,70,90,0);}
+            100%{background:rgba(60,70,90,0.10);}
+        }
+        .popup-btn {
+            margin: 18px 10px 0 10px;
+            padding: 8px 24px;
+            border: none;
+            border-radius: 8px;
+            background: #1976ed;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background .2s;
+        }
+        .popup-btn.cancel { background: #f34d52; }
+        .popup-btn:hover { filter: brightness(1.08);}
     </style>
 </head>
 <body>
@@ -331,6 +373,11 @@
         </div>
     </div>
 
+    <!-- Popup xác nhận & thông báo -->
+    <div id="popup-overlay" style="display:none;">
+        <div id="popup-box"></div>
+    </div>
+
     <!-- Task List -->
     <div class="tasks-list">
     </div>
@@ -373,8 +420,6 @@
         });
         if (res.ok) {
             const project = await res.json();
-            console.log('Project info:', project);
-
             document.querySelector('.project-info h2').innerText = `Projects / ${project.name}`;
             document.querySelector('.project-description-box p').innerText = project.description || '';
             document.querySelector('.project-timeline').innerHTML = `
@@ -386,7 +431,6 @@
 
     // 2. Fetch tasks (chỉ hiển thị task của project hiện tại)
     async function fetchTasks() {
-        console.log('Current projectId:', projectId);
         const url = `${apiBase}/tasks`;
         const res = await fetch(url, {
             headers: { 'Authorization': 'Bearer ' + token }
@@ -394,30 +438,16 @@
         const tasksListDiv = document.querySelector('.tasks-list');
         if (res.ok) {
             let tasks = await res.json();
-            console.log('Raw tasks from API:', tasks);
 
             // Lọc lại tasks đúng project hiện tại (nếu backend chưa filter)
             tasks = tasks.filter(task =>
                 task.project && String(task.project.id) === String(projectId)
             );
-            console.log('Tasks after filter by projectId:', tasks);
 
             if (!tasks.length) {
                 tasksListDiv.innerHTML = '<p>No tasks found.</p>';
                 return;
             }
-            tasks.forEach(task => {
-                // Log chi tiết từng task chuẩn debug
-                console.log('Task render:', {
-                    id: task.id,
-                    name: task.name,
-                    startDate: task.startDate,
-                    start_date: task.start_date,
-                    endDate: task.endDate,
-                    end_date: task.end_date,
-                    status: task.status
-                });
-            });
             tasksListDiv.innerHTML = tasks.map(task => {
                 // Bao cả camelCase lẫn snake_case
                 const start = task.startDate || task.start_date;
@@ -442,32 +472,16 @@
                     <div class="status-buttons">
                         <button class="complete-btn" onclick="completeTask('${task.id}')">Complete</button>
                         <button class="cancel-btn" onclick="cancelTask('${task.id}')">Cancel</button>
-                        <button class="edit-btn" onclick="editTask('${task.id}')">Edit Project</button>
                     </div>
                 </div>
             `;
             }).join('');
         } else {
             tasksListDiv.innerHTML = '<p>Cannot load tasks.</p>';
-            console.error('Lỗi fetch tasks:', res.status, res.statusText);
         }
     }
 
-    // 3. Hoàn thành / huỷ task
-    async function completeTask(id) {
-        await fetch(`${apiBase}/tasks/${id}/complete`, {
-            method: 'PUT',
-            headers: { 'Authorization': 'Bearer ' + token }
-        });
-        fetchTasks();
-    }
-    async function cancelTask(id) {
-        await fetch(`${apiBase}/tasks/${id}/cancel`, {
-            method: 'PUT',
-            headers: { 'Authorization': 'Bearer ' + token }
-        });
-        fetchTasks();
-    }
+    // 3. Hàm editTask
     function editTask(id) {
         location.href = `edit_task.html?id=${id}&projectId=${projectId}`;
     }
@@ -482,10 +496,57 @@
     fetchTasks();
     setInterval(fetchTasks, 10000); // tự refresh 10s
 
-    console.log(tasks);
+    // --- Popup notification/confirm ---
+    function showPopup(msg, type = "alert", onConfirm) {
+        const overlay = document.getElementById("popup-overlay");
+        const box = document.getElementById("popup-box");
+        if (type === "alert") {
+            box.innerHTML = `<div style="font-size:1.3em;margin-bottom:6px;">${msg}</div>`;
+            overlay.style.display = "flex";
+            setTimeout(() => overlay.style.display = "none", 1200);
+        } else if (type === "confirm") {
+            box.innerHTML = `
+                <div style="font-size:1.12em;margin-bottom:14px;">${msg}</div>
+                <button class="popup-btn" id="popup-confirm-btn">Xác nhận</button>
+                <button class="popup-btn cancel" id="popup-cancel-btn">Hủy</button>
+            `;
+            overlay.style.display = "flex";
+            document.getElementById("popup-confirm-btn").onclick = function() {
+                overlay.style.display = "none";
+                if (onConfirm) onConfirm();
+            };
+            document.getElementById("popup-cancel-btn").onclick = function() {
+                overlay.style.display = "none";
+            };
+        }
+    }
+
+    // --- Ghi đè lại các hàm completeTask và cancelTask để dùng popup ---
+    window.completeTask = async function(id) {
+        await fetch(`${apiBase}/tasks/${id}/complete`, {
+            method: 'PUT',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        showPopup('Completed!', 'alert');
+        setTimeout(fetchTasks, 1300);
+    };
+
+    window.cancelTask = async function(id) {
+        showPopup('Bạn có chắc chắn muốn cancel task này không?', 'confirm', async function() {
+            const res = await fetch(`${apiBase}/tasks/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            if (res.ok) {
+                showPopup('Thành công!', 'alert');
+                setTimeout(fetchTasks, 1200);
+            } else {
+                showPopup('Xóa task thất bại!', 'alert');
+            }
+        });
+    };
 
 </script>
-
 
 </body>
 </html>

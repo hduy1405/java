@@ -33,7 +33,7 @@ public class Task {
     private Project project; // Liên kết với project
 
     @Column(nullable = false)
-    private String status; // Thêm trạng thái task (ví dụ: "Completed", "In Progress", "Pending")
+    private String status = "Pending"; // Thêm trạng thái task (ví dụ: "Completed", "In Progress", "Pending")
 
     // Getter và Setter
     public Long getId() {

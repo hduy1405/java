@@ -198,7 +198,8 @@
             <div class="dashboard-card" id="projectsCard">
                 <div class="section-title">Projects</div>
                 <canvas id="projectsChart"></canvas> <!-- Biểu đồ Projects -->
-                <span class="section-badge">52 files</span>
+                <span class="section-badge" id="projectsCountBadge">52 files</span>
+
             </div>
         </a>
 
@@ -253,6 +254,12 @@
 
         // Gọi hàm để vẽ biểu đồ với dữ liệu
         renderCharts(data);
+
+        if (typeof data.projectsCount !== "undefined") {
+            document.getElementById('projectsCountBadge').textContent = data.projectsCount + " files";
+        } else if (Array.isArray(data.projects)) {
+            document.getElementById('projectsCountBadge').textContent = data.projects.length + " files";
+        }
     };
 
     // Hàm vẽ biểu đồ

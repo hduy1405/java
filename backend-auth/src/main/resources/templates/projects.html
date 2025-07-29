@@ -282,17 +282,39 @@
             const projectsGrid = document.getElementById('projectsGrid');
             projectsGrid.innerHTML = '';  // Xóa nội dung cũ
 
+            // (Bonus) Hiển thị tổng số project trên giao diện, nếu có element này
+            const projectCountBadge = document.getElementById('project-card-count');
+            if (projectCountBadge) {
+                projectCountBadge.textContent = data.length + (data.length === 1 ? " project" : " projects");
+            }
+
             // Duyệt qua các project và tạo giao diện
             data.forEach(project => {
                 const projectCard = document.createElement('div');
                 projectCard.className = 'dashboard-card';
+
+                // Đặt màu badge theo status
+                let statusColor = "#e3f2fd"; // mặc định
+                let textColor = "#1565c0";
+                if (project.status === "Completed") {
+                    statusColor = "#4caf50"; textColor = "#fff";
+                } else if (project.status === "Pending") {
+                    statusColor = "#ff9800"; textColor = "#fff";
+                } else if (project.status === "In Progress") {
+                    statusColor = "#2196f3"; textColor = "#fff";
+                }
+
+                // Render nội dung project card
                 projectCard.innerHTML = `
-                    <div class="section-title">${project.name}</div>
-                    <span class="section-badge">${project.filesCount} files</span>
-                `;
+                <div class="section-title">${project.name}</div>
+                <span class="section-badge" style="background:${statusColor};color:${textColor};">
+                    ${project.status || "No status"}
+                </span>
+            `;
+
+                // Sự kiện click để xem task của project
                 projectCard.addEventListener('click', function() {
                     window.location.href = `task.html?projectId=${project.id}`;
-                    // Chuyển sang task.html và truyền ID project
                 });
 
                 projectsGrid.appendChild(projectCard);
@@ -306,6 +328,7 @@
     document.getElementById('createButton').addEventListener('click', function() {
         window.location.href = 'create_project.html';  // Chuyển hướng tới trang tạo project
     });
+
 </script>
 
 </body>
