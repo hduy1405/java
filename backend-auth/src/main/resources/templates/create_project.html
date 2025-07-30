@@ -309,10 +309,13 @@
         };
 
         // Kiểm tra nếu dữ liệu hợp lệ
-        if (!projectData.name || !projectData.description || !projectData.startDate || !projectData.endDate || !projectData.status) {
+        if (!projectData.name || !projectData.description || !projectData.startDate || !projectData.endDate ) {
             alert('Please fill all the fields.');
             return;
         }
+
+        projectData.startDate = projectData.startDate + "T00:00:00";
+        projectData.endDate = projectData.endDate + "T00:00:00";
 
         // Gửi dữ liệu đến backend
         fetch('http://localhost:8181/api/projects', {

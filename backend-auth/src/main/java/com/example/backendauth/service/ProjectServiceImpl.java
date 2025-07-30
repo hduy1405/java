@@ -22,8 +22,12 @@ public class ProjectServiceImpl implements ProjectService {
         resp.setDescription(project.getDescription());
         resp.setCreatedAt(project.getCreatedAt());
         resp.setStatus(project.getStatus());
-        resp.setStartDate(project.getStartDate());
-        resp.setEndDate(project.getEndDate());
+        resp.setStartDate(
+                project.getStartDate() != null ? project.getStartDate().toLocalDate() : null
+        );
+        resp.setEndDate(
+                project.getEndDate() != null ? project.getEndDate().toLocalDate() : null
+        );
         return resp;
     }
 

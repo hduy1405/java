@@ -1,6 +1,7 @@
 package com.example.backendauth.dto;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class ProjectResponse {
     private Long id;
@@ -8,13 +9,14 @@ public class ProjectResponse {
     private String description;
     private String status;
     private LocalDateTime createdAt;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
+
     // Constructor mặc định
     public ProjectResponse() {}
 
-    // Constructor có đủ tham số
-    public ProjectResponse(Long id, String name, String description, String status, LocalDateTime createdAt, LocalDateTime startDate, LocalDateTime endDate) {
+    // Constructor đầy đủ tham số
+    public ProjectResponse(Long id, String name, String description, String status, LocalDateTime createdAt, LocalDate startDate, LocalDate endDate) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -40,11 +42,9 @@ public class ProjectResponse {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    // Thêm getter & setter cho startDate
-    public LocalDateTime getStartDate() { return startDate; }
-    public void setStartDate(LocalDateTime startDate) { this.startDate = startDate; }
+    public LocalDate getStartDate() { return startDate; }
+    public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
 
-    // Thêm getter & setter cho endDate
-    public LocalDateTime getEndDate() { return endDate; }
-    public void setEndDate(LocalDateTime endDate) { this.endDate = endDate; }
+    public LocalDate getEndDate() { return endDate; }
+    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
 }
